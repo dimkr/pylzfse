@@ -1,3 +1,27 @@
+/*
+ * this file is part of pylzfse.
+ *
+ * Copyright (c) 2016 Dima Krasner
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
 #include <lzfse.h>
 #include <Python.h>
 
@@ -12,7 +36,7 @@ lzfse_op(PyObject* self,
                       size_t,
                       void *__restrict),
          size_t (*get_outlen)(const size_t),
-         size_t (*get_auxlen)())
+         size_t (*get_auxlen)(void))
 {
     PyObject *str;
     const char *in;
@@ -35,11 +59,13 @@ lzfse_op(PyObject* self,
         return PyErr_NoMemory();
     }
 
+    Py_BEGIN_ALLOW_THREADS
     outlen = op((uint8_t *)out,
                 outlen - 1,
                 (const uint8_t *)in,
                 (size_t)inlen,
                 aux);
+    Py_END_ALLOW_THREADS
     free(aux);
 
     if (!outlen) {
@@ -72,6 +98,9 @@ lzfse_compress(PyObject* self, PyObject* args)
                     lzfse_encode_scratch_size);
 }
 
+PyDoc_STRVAR(compress_doc,
+"compress(string) -- Compress a buffer using LZFSE.");
+
 static size_t
 get_decode_outlen(const size_t inlen)
 {
@@ -89,9 +118,12 @@ lzfse_decompress(PyObject* self, PyObject* args)
                     lzfse_decode_scratch_size);
 }
 
+PyDoc_STRVAR(decompress_doc,
+"decompress(string) -- Decompress a LZFSE-compressed buffer.");
+
 static PyMethodDef LzfseMethods[] = {
-    {"compress", lzfse_compress, METH_VARARGS, "Compress a buffer using LZFSE."},
-    {"decompress", lzfse_decompress, METH_VARARGS, "Decompress a LZFSE-compressed buffer."},
+    {"compress", lzfse_compress, METH_VARARGS, compress_doc},
+    {"decompress", lzfse_decompress, METH_VARARGS, decompress_doc},
     {NULL, NULL, 0, NULL}
 };
 
