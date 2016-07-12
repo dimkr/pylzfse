@@ -61,7 +61,7 @@ lzfse_op(PyObject* self,
 
     Py_BEGIN_ALLOW_THREADS
     outlen = op((uint8_t *)out,
-                outlen - 1,
+                outlen,
                 (const uint8_t *)in,
                 (size_t)inlen,
                 aux);
