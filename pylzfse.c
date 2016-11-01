@@ -85,7 +85,9 @@ lzfse_op(PyObject* self,
 static size_t
 get_encode_outlen(const size_t inlen)
 {
-    return inlen;
+    /* Extra 12 bytes for start/end block magics and block length in case the compressed output is
+       larger than the input, as in lzfse_encode.c */
+    return inlen + 12;
 }
 
 static PyObject*
