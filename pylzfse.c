@@ -75,7 +75,7 @@ lzfse_op(PyObject* self,
     }
 
     out[outlen] = '\0';
-    str = PyString_FromStringAndSize(out, (Py_ssize_t)outlen);
+    str = PyUnicode_FromStringAndSize(out, (Py_ssize_t)outlen);
     free(out);
     if (!str)
         PyErr_SetNone(LzfseError);
@@ -129,18 +129,43 @@ static PyMethodDef LzfseMethods[] = {
     {NULL, NULL, 0, NULL}
 };
 
-PyMODINIT_FUNC
-initlzfse(void)
+#if PY_MAJOR_VERSION >= 3
+    #define MOD_DEF(ob, name, doc, methods) \
+        static struct PyModuleDef moduledef = { \
+            PyModuleDef_HEAD_INIT, name, doc, -1, methods, }; \
+        ob = PyModule_Create(&moduledef);
+#else
+    #define MOD_DEF(ob, name, doc, methods) \
+        ob = Py_InitModule(name, methods, doc);
+#endif
+
+static PyObject *
+moduleinit(void)
 {
     PyObject *m;
 
-    m = Py_InitModule("lzfse", LzfseMethods);
+    MOD_DEF(m, "lzfse", "Python module for LZFSE", LzfseMethods)
+    
     if (!m)
-        return;
+        return NULL;
 
     LzfseError = PyErr_NewException("lzfse.error", NULL, NULL);
     if (LzfseError) {
         Py_INCREF(LzfseError);
         PyModule_AddObject(m, "error", LzfseError);
     }
+    return m;
 }
+
+PyMODINIT_FUNC
+#if PY_MAJOR_VERSION >= 3
+    PyInit_lzfse(void)
+    {
+        return moduleinit();
+    }
+#else
+    initlzfse(void)
+    {
+        moduleinit();
+    }
+#endif
