@@ -33,7 +33,7 @@ lzfse = Extension('lzfse',
                    language='c')
 
 setup(name='pylzfse',
-      version='0.1',
+      version='0.2',
       license='MIT',
       author='Dima Krasner',
       author_email='dima@dimakrasner.com',
