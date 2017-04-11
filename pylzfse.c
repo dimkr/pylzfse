@@ -89,8 +89,8 @@ lzfse_op(PyObject* self,
 static size_t
 get_encode_outlen(const size_t inlen)
 {
-    /* Extra 12 bytes for start/end block magics and block length in case the compressed output is
-       larger than the input, as in lzfse_encode.c */
+    /* Extra 12 bytes for start/end block magics and block length in case the
+     * compressed output is larger than the input, as in lzfse_encode.c */
     return inlen + 12;
 }
 
@@ -134,42 +134,37 @@ static PyMethodDef LzfseMethods[] = {
 };
 
 #if PY_MAJOR_VERSION >= 3
-    #define MOD_DEF(ob, name, doc, methods) \
-        static struct PyModuleDef moduledef = { \
-            PyModuleDef_HEAD_INIT, name, doc, -1, methods, }; \
-        ob = PyModule_Create(&moduledef);
-#else
-    #define MOD_DEF(ob, name, doc, methods) \
-        ob = Py_InitModule(name, methods);
+static struct PyModuleDef moduledef = {
+    PyModuleDef_HEAD_INIT,
+    "lzfse",
+    "Python module for LZFSE",
+    -1,
+    LzfseMethods
+};
 #endif
 
-static PyObject *
-moduleinit(void)
+PyMODINIT_FUNC
+#if PY_MAJOR_VERSION >= 3
+PyInit_lzfse(void)
 {
-    PyObject *m;
-
-    MOD_DEF(m, "lzfse", "Python module for LZFSE", LzfseMethods)
-
+    PyObject *m = PyModule_Create(&moduledef);
     if (!m)
         return NULL;
+#else
+initlzfse(void)
+{
+    PyObject *m = Py_InitModule("lzfse", LzfseMethods);
+    if (!m)
+        return;
+#endif
 
     LzfseError = PyErr_NewException("lzfse.error", NULL, NULL);
     if (LzfseError) {
         Py_INCREF(LzfseError);
         PyModule_AddObject(m, "error", LzfseError);
     }
-    return m;
-}
 
-PyMODINIT_FUNC
 #if PY_MAJOR_VERSION >= 3
-    PyInit_lzfse(void)
-    {
-        return moduleinit();
-    }
-#else
-    initlzfse(void)
-    {
-        moduleinit();
-    }
+    return m;
 #endif
+}
