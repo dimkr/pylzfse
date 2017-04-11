@@ -75,7 +75,11 @@ lzfse_op(PyObject* self,
     }
 
     out[outlen] = '\0';
-    str = PyUnicode_FromStringAndSize(out, (Py_ssize_t)outlen);
+#if PY_MAJOR_VERSION >= 3
+    str = PyBytes_FromStringAndSize(out, (Py_ssize_t)outlen);
+#else
+    str = PyString_FromStringAndSize(out, (Py_ssize_t)outlen);
+#endif
     free(out);
     if (!str)
         PyErr_SetNone(LzfseError);
@@ -136,7 +140,7 @@ static PyMethodDef LzfseMethods[] = {
         ob = PyModule_Create(&moduledef);
 #else
     #define MOD_DEF(ob, name, doc, methods) \
-        ob = Py_InitModule(name, methods, doc);
+        ob = Py_InitModule(name, methods);
 #endif
 
 static PyObject *
@@ -145,7 +149,7 @@ moduleinit(void)
     PyObject *m;
 
     MOD_DEF(m, "lzfse", "Python module for LZFSE", LzfseMethods)
-    
+
     if (!m)
         return NULL;
 
