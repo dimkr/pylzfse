@@ -1,1 +1,11 @@
-build
+# Generic auto-generated build files
+*.pyc
+*.pyo
+
+# Specific auto-generated build files
+/.eggs
+/__pycache__
+/build/
+/dist/
+/MANIFEST
+/pylzfse.egg-info
