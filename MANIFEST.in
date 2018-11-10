@@ -1,0 +1,9 @@
+include LICENSE
+include *.c
+include *.py
+exclude .gitignore
+exclude .gitmodules
+exclude *.pyc
+include lzfse/LICENSE
+recursive-include lzfse/src *.c
+recursive-include lzfse/src *.h
